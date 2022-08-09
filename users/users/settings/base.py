@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 
+from django.core.exceptions import ImproperlyConfigured
+import json
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -9,7 +12,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-9@=i!pdhcfy^pulw480@(8h0zux@dq121s)-p0s7$p%+ap7zmh'
+with open('secret.json') as f:
+    secret = json.loads(f.read())
+
+def get_secret(secret_name, secrets=secret):
+    try:
+        return secrets[secret_name]
+    except:
+        msg = "la variable %s no existe" % secret_name
+        raise ImproperlyConfigured(msg)
+
+
+SECRET_KEY = get_secret('SECRET_KEY')
 
 
 TEMPLATE_PATH = os.path.join(BASE_DIR, "templates")

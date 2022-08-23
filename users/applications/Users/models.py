@@ -19,6 +19,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     nombres = models.CharField(max_length=30, blank=True)
     apellidos = models.CharField(max_length=30, blank=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)
+    # si queremos que x usuario pueda acceder al admintrador (es obligatorio definirlo)
     is_staff = models.BooleanField(default=False)
     
     USERNAME_FIELD = 'username'

@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.auth import authenticate
 from .models import User
 
 
@@ -38,13 +39,14 @@ class UserRegisterForm(forms.ModelForm):
     def clean_password2(self):
         if str(self.cleaned_data['password1']) != str(self.cleaned_data['password2']):
             self.add_error('password1', 'Las contrasenia no son iguales')
-        
+
         # if len(self.cleaned_data['password1']) < 5:
         #     self.add_error(
         #         'password1',
         #         'La contrasenia debe ser mayor a 5 cinco digitos'
         #     )
-        
+
+
 class LoginForm(forms.Form):
     username = forms.CharField(
         label='username',
@@ -56,7 +58,7 @@ class LoginForm(forms.Form):
             }
         )
     )
-    
+
     password = forms.CharField(
         label='password',
         required=True,
@@ -66,3 +68,16 @@ class LoginForm(forms.Form):
             }
         )
     )
+
+    def clean(self):
+        res = super(LoginForm, self).clean()
+        
+        username = self.cleaned_data['username']
+        password = self.cleaned_data['password']
+
+        if not authenticate(username=username, password=password):
+            raise forms.ValidationError(
+                'Los datos de usuarios no son correctos.'
+            )
+        
+        return res

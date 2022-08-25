@@ -1,7 +1,9 @@
+from cmath import log
 from django.shortcuts import render
-from django.views.generic import CreateView
-from django.urls import reverse_lazy
-from django.contrib.auth import authenticate, login
+from django.views.generic import View, CreateView
+from django.urls import reverse_lazy, reverse
+from django.contrib.auth import authenticate, login, logout
+from django.http import HttpResponseRedirect
 
 from .forms import UserRegisterForm, LoginForm
 
@@ -16,7 +18,6 @@ class UserRegisterView(FormView):
 
     form_class = UserRegisterForm
     success_url = reverse_lazy('home_app:panel')
-    
 
     def form_valid(self, form):
         #
@@ -37,12 +38,24 @@ class LoginUser(FormView):
     template_name = 'users/login.html'
     form_class = LoginForm
     success_url = reverse_lazy('home_app:panel')
-    
+
     def form_valid(self, form):
         user = authenticate(
             username=form.cleaned_data['username'],
             password=form.cleaned_data['password'],
         )
         login(self.request, user)
-        
+
         return super(LoginUser, self).form_valid(form)
+
+
+class LogoutView(View):
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+
+        return HttpResponseRedirect(
+            reverse(
+                'users_app:user-login'
+            )  # facilita navegar entre las urls
+        )

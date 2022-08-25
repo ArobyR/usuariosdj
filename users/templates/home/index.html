@@ -6,10 +6,10 @@
 
 
 {% block content %}
-    <h1>Bienvenidos al inicio</h1>
+    <h1>Bienvenidos al inicio: {{user}}</h1>
     <ul>
         <li>
-            <a href="#">Iniciar seccion</a>
+            <a href="{% url 'users_app:user-logout' %}">Cerrar seccion</a>
         </li>
         <li>
             <a href="#">Actualizar datos</a>

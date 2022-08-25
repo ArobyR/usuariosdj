@@ -3,14 +3,18 @@ from django.shortcuts import render
 from django.views.generic import View, CreateView
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
-
-from .forms import UserRegisterForm, LoginForm
 
 from django.views.generic.edit import (
     FormView
 )
 from .models import User
+from .forms import  (
+    UserRegisterForm, 
+    LoginForm,
+   UpdatePasswordForm
+) 
 
 
 class UserRegisterView(FormView):
@@ -59,3 +63,25 @@ class LogoutView(View):
                 'users_app:user-login'
             )  # facilita navegar entre las urls
         )
+
+
+class UpdatePasswordView(LoginRequiredMixin, FormView):
+    template_name = 'users/update.html'
+    form_class = UpdatePasswordForm
+    success_url = reverse_lazy('users_app:user-login')
+    login_url = reverse_lazy('users_app:user-login')
+    
+    def form_valid(self, form):
+        user = self.request.user
+        user_auth = authenticate(
+            username=user.username,
+            password=form.cleaned_data['password'],
+        )
+
+        if user_auth:
+            new_password = form.cleaned_data['password2']
+            user.set_password(new_password)
+            user.save()
+             
+        logout(self.request)
+        return super(UpdatePasswordView, self).form_valid(form)

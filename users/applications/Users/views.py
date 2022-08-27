@@ -1,5 +1,6 @@
 from cmath import log
 from django.shortcuts import render
+from django.core.mail import send_mail
 from django.views.generic import View, CreateView
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import authenticate, login, logout
@@ -15,6 +16,7 @@ from .forms import  (
     LoginForm,
    UpdatePasswordForm
 ) 
+from .functions import code_generator
 
 
 class UserRegisterView(FormView):
@@ -24,7 +26,10 @@ class UserRegisterView(FormView):
     success_url = reverse_lazy('home_app:panel')
 
     def form_valid(self, form):
-        #
+        # generamos el codigo
+        
+        codigo = code_generator()
+        
         User.objects.create_user(
             form.cleaned_data['username'],
             form.cleaned_data['email'],
@@ -33,9 +38,22 @@ class UserRegisterView(FormView):
             nombres=form.cleaned_data['nombres'],
             apellidos=form.cleaned_data['apellidos'],
             genero=form.cleaned_data['genero'],
+            coderegistro=codigo
         )
-
-        return super(UserRegisterView, self).form_valid(form)
+        
+        # enviar el codigo al email del usuario
+        subject = 'Confirmacion email'
+        message = 'Codigo de verificacion: ' + codigo
+        email_remitente = 'testcrypto413@gmail.com'
+         
+        send_mail(subject, message, email_remitente, [form.cleaned_data['email'],])
+        
+        # return super(UserRegisterView, self).form_valid(form)
+        return HttpResponseRedirect(
+            reverse(
+                'users_app:user-login'
+            )  # facilita navegar entre las urls
+        )
 
 
 class LoginUser(FormView):

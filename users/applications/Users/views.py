@@ -111,10 +111,22 @@ class CodeVerificationView(FormView):
     form_class = VerificationForm
     success_url = reverse_lazy('users_app:user-login')
 
+    def get_form_kwargs(self):
+        """ sobre escribe el metodo que recibe las kwargs en las vistas"""
+        kwargs = super(CodeVerificationView, self).get_form_kwargs()
+        kwargs.update({
+            'pk': self.kwargs['pk']
+        })
+        return kwargs
+
     def form_valid(self, form):
         #
-        test = self.request.GET['pk']
-        print('================= {0}'.format(test))
         # id_user = self.kwargs['pk']
+        #
+        User.objects.filter(
+            id=self.kwargs['pk']
+        ).update(
+            is_active=True
+        )
 
         return super(CodeVerificationView, self).form_valid(form)

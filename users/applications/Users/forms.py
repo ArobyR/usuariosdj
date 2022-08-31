@@ -71,7 +71,7 @@ class LoginForm(forms.Form):
 
     def clean(self):
         res = super(LoginForm, self).clean()
-        
+
         username = self.cleaned_data['username']
         password = self.cleaned_data['password']
 
@@ -79,7 +79,7 @@ class LoginForm(forms.Form):
             raise forms.ValidationError(
                 'Los datos de usuarios no son correctos.'
             )
-        
+
         return res
 
 
@@ -93,7 +93,7 @@ class UpdatePasswordForm(forms.Form):
             }
         )
     )
-    
+
     password2 = forms.CharField(
         label='password',
         required=True,
@@ -102,11 +102,11 @@ class UpdatePasswordForm(forms.Form):
                 'placeholder': 'Nueva password'
             }
         )
-    ) 
+    )
 
     # def clean(self):
     #     res = super(UpdatePasswordForm, self).clean()
-        
+
     #     username = self.cleaned_data['username']
     #     password = self.cleaned_data['password']
 
@@ -114,6 +114,29 @@ class UpdatePasswordForm(forms.Form):
     #         raise forms.ValidationError(
     #             'Los datos de usuarios no son correctos.'
     #         )
-        
+
     #     return res
-       
+
+
+class VerificationForm(forms.Form):
+    coderegistro = forms.CharField(required=True, max_length=6)
+
+    def clean_coderegistro(self):
+        id_user = self.kwargs['pk']
+
+        codigo = self.cleaned_data['coderegistro']
+
+        if len(codigo) == 6:
+            # verificamos si el codigo y el id de usuario son validos
+            activo = User.objects.cod_validation(
+                id_user,
+                codigo
+            )
+            if not activo:
+                raise forms.ValidationError(
+                    'El codigo es incorrecto.'
+                )
+        else:
+            raise forms.ValidationError(
+                'El codigo es incorrecto.'
+            )

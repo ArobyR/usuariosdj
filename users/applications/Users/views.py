@@ -1,5 +1,3 @@
-from cmath import log
-from django.shortcuts import render
 from django.core.mail import send_mail
 from django.views.generic import View, CreateView
 from django.urls import reverse_lazy, reverse
@@ -11,11 +9,12 @@ from django.views.generic.edit import (
     FormView
 )
 from .models import User
-from .forms import  (
-    UserRegisterForm, 
+from .forms import (
+    UserRegisterForm,
     LoginForm,
-   UpdatePasswordForm
-) 
+    UpdatePasswordForm,
+    VerificationForm,
+)
 from .functions import code_generator
 
 
@@ -27,10 +26,10 @@ class UserRegisterView(FormView):
 
     def form_valid(self, form):
         # generamos el codigo
-        
+
         codigo = code_generator()
-        
-        User.objects.create_user(
+
+        usuario = User.objects.create_user(
             form.cleaned_data['username'],
             form.cleaned_data['email'],
             form.cleaned_data['password1'],
@@ -40,18 +39,20 @@ class UserRegisterView(FormView):
             genero=form.cleaned_data['genero'],
             coderegistro=codigo
         )
-        
+
         # enviar el codigo al email del usuario
         subject = 'Confirmacion email'
         message = 'Codigo de verificacion: ' + codigo
-        email_remitente = 'testcrypto413@gmail.com'
-         
-        send_mail(subject, message, email_remitente, [form.cleaned_data['email'],])
-        
+        email_remitente = 'aroby.rosario@growit.com.do'
+
+        send_mail(subject, message, email_remitente,
+                  [form.cleaned_data['email'], ])
+
         # return super(UserRegisterView, self).form_valid(form)
         return HttpResponseRedirect(
             reverse(
-                'users_app:user-login'
+                'users_app:user-verification',
+                kwargs={'pk': usuario.id}
             )  # facilita navegar entre las urls
         )
 
@@ -88,7 +89,7 @@ class UpdatePasswordView(LoginRequiredMixin, FormView):
     form_class = UpdatePasswordForm
     success_url = reverse_lazy('users_app:user-login')
     login_url = reverse_lazy('users_app:user-login')
-    
+
     def form_valid(self, form):
         user = self.request.user
         user_auth = authenticate(
@@ -100,6 +101,20 @@ class UpdatePasswordView(LoginRequiredMixin, FormView):
             new_password = form.cleaned_data['password2']
             user.set_password(new_password)
             user.save()
-             
+
         logout(self.request)
         return super(UpdatePasswordView, self).form_valid(form)
+
+
+class CodeVerificationView(FormView):
+    template_name = 'users/verification.html'
+    form_class = VerificationForm
+    success_url = reverse_lazy('users_app:user-login')
+
+    def form_valid(self, form):
+        #
+        test = self.request.GET['pk']
+        print('================= {0}'.format(test))
+        # id_user = self.kwargs['pk']
+
+        return super(CodeVerificationView, self).form_valid(form)

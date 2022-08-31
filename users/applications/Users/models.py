@@ -1,4 +1,3 @@
-import imp
 from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
@@ -15,7 +14,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     
     username = models.CharField('Username', max_length=20, unique=True)
-    email = models.EmailField('email', max_length=254)
+    email = models.EmailField('email', max_length=254, unique=True)
     nombres = models.CharField(max_length=30, blank=True)
     apellidos = models.CharField(max_length=30, blank=True)
     genero = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True)

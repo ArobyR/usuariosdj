@@ -15,6 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 with open('secret.json') as f:
     secret = json.loads(f.read())
 
+
 def get_secret(secret_name, secrets=secret):
     try:
         return secrets[secret_name]
@@ -91,7 +92,8 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = 'Users.User' # Definiendo este modelo como usuario por defecto (interno) en django
+# Definiendo este modelo como usuario por defecto (interno) en django
+AUTH_USER_MODEL = 'Users.User'
 
 
 LANGUAGE_CODE = 'en-us'

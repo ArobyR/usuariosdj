@@ -33,4 +33,3 @@ class UserManager(BaseUserManager, models.Manager):
             return True
         else:
             return False
-        

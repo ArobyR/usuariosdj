@@ -22,7 +22,7 @@ class UserManager(BaseUserManager, models.Manager):
 
     def create_user(self, username, email, password=None, **extra_fields):
         """ overwriting crate_user """
-        return self._create_user(username, email, password, False, False, False, **extra_fields)
+        return self._create_user(username, email, password, False, False, True, **extra_fields)
 
     def create_superuser(self, username, email, password=None, **extra_fields):
         """ overwriting create_superuser """
